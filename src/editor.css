@@ -1,0 +1,19 @@
+* { box-sizing: border-box; }
+body { margin: 0; background: #f5f7f3; color: #17352a; font: 16px/1.5 system-ui, sans-serif; }
+main { max-width: 61rem; margin-inline: auto; padding: 3.5rem 1.5rem; }
+header { margin-block-end: 1.4rem; }
+header p { margin: 0; color: #445d50; }
+h1 { font: 2.5rem/1.1 Georgia, serif; margin: .2em 0; }
+h2 { margin-block: 0 .9rem; font-size: 1.15rem; }
+h2 small { display: block; color: #49675a; font-size: .78rem; font-weight: 500; }
+.panels { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 1rem; }
+section { border: 1px solid #b7cbbd; border-radius: .75rem; padding: 1.1rem; background: #fff; }
+label, input { display: block; }
+input { width: 100%; border: 1px solid #8ba396; padding: .55rem; margin: .28rem 0 .9rem; font: inherit; border-radius: .3rem; }
+.actions { display: flex; flex-wrap: wrap; gap: .55rem; }
+button { font: inherit; border-radius: .35rem; border: 1px solid #486653; background: white; color: #193429; padding: .45rem .65rem; }
+button:last-child { background: #205039; color: white; }
+button:disabled { opacity: .55; }
+:focus-visible { outline: 3px solid #487a5e; outline-offset: 2px; }
+[role=status] { background: #e5efe7; padding: .65rem 1rem; border-radius: .45rem; }
+@media (max-width: 40rem) { .panels { grid-template-columns: 1fr; } main { padding-block: 1.6rem; } }
