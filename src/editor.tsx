@@ -69,21 +69,33 @@ function Editor() {
 		}
 	}
 
+	const canPublish = phase === 'idle' && report !== null && report.errors.length === 0;
+	const draftState = phase === 'checking' ? 'Reviewing' : canPublish ? 'Reviewed' : report?.errors.length ? 'Needs changes' : 'Unreviewed';
+
 	return <main>
-		<header><p>Hamsaz Configurator</p><h1>Draft publishing</h1></header>
+		<header>
+			<div><p>Hamsaz Configurator</p><h1>Draft publishing</h1></div>
+			<p className="guide">Review a draft and publish the revision you checked.</p>
+		</header>
 		<div className="panels">
 			<section aria-labelledby="draft-title">
-				<h2 id="draft-title">Current draft <small>Revision {draft.revision}</small></h2>
+				<div className="panel-heading">
+					<h2 id="draft-title">Current draft <small>Revision {draft.revision}</small></h2>
+					<span className="state" data-state={draftState}>{draftState}</span>
+				</div>
 				<label htmlFor="kit-title">Kit name</label>
 				<input id="kit-title" value={draft.title} onChange={event => edit(event.target.value)} />
 				<div className="actions">
-					<button disabled={phase !== 'idle'} onClick={() => void inspect()}>Review draft</button>
-					<button disabled={phase !== 'idle' || !report || report.errors.length > 0} onClick={() => void publish()}>Publish reviewed draft</button>
+					<button data-primary={!canPublish} disabled={phase !== 'idle'} onClick={() => void inspect()}>Review draft</button>
+					<button data-primary={canPublish} disabled={!canPublish} onClick={() => void publish()}>Publish reviewed draft</button>
 				</div>
 			</section>
 			<section aria-labelledby="published-title">
-				<h2 id="published-title">Published version</h2>
-				{published ? <><strong>{published.title}</strong><p>Revision {published.revision}</p></> : <p>Awaiting publication.</p>}
+				<div className="panel-heading">
+					<h2 id="published-title">Published version</h2>
+					{published && <span className="state" data-state="Published">Published</span>}
+				</div>
+				{published ? <div className="published-record"><p>Revision {published.revision}</p><strong>{published.title}</strong></div> : <p className="published-empty">Awaiting publication.</p>}
 			</section>
 		</div>
 		<p role="status">{phase === 'idle' ? message : phase === 'checking' ? 'Reviewing the draft…' : 'Publishing reviewed revision…'}</p>
