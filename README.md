@@ -1,5 +1,7 @@
 # Hamsaz Draft Publishing
 
+**What to try.** Open the live editor to see how a reviewed revision can be published while a newer draft stays intact.
+
 [![Browser and build checks](https://github.com/aa71200/hamsaz-editor-publish/actions/workflows/checks.yml/badge.svg?branch=main)](https://github.com/aa71200/hamsaz-editor-publish/actions/workflows/checks.yml)
 
 A review that finishes late should never approve a newer draft. This React and TypeScript sample adapts the publication flow from **Hamsaz 0.1.0**, using a delayed in-memory API to show how the editor preserves newer changes.
