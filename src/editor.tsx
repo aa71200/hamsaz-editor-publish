@@ -3,16 +3,17 @@ import { createRoot } from 'react-dom/client';
 import './editor.css';
 
 type Draft = { title: string; revision: number };
-type Report = { errors: string[] };
+type Report = { errors: string[]; reviewed: Draft };
 
 const wait = () => new Promise<void>(resolve => setTimeout(resolve, 650));
 const mockApi = {
 	async health(draft: Draft): Promise<Report> {
 		await wait();
-		return { errors: draft.title.trim() ? [] : ['The draft needs a title.'] };
+		return { reviewed: { ...draft }, errors: draft.title.trim() ? [] : ['The draft needs a title.'] };
 	},
-	async publish(draft: Draft): Promise<Draft> {
+	async publish(draft: Draft, fail: boolean): Promise<Draft> {
 		await wait();
+		if (fail) throw new Error('Simulated publication failure.');
 		return { ...draft };
 	},
 };
@@ -24,7 +25,8 @@ function Editor() {
 	const [phase, setPhase] = useState<'idle' | 'checking' | 'publishing'>('idle');
 	const [message, setMessage] = useState('The draft is ready to review.');
 	const latest = useRef(draft);
-	const publishing = useRef(false);
+	const requestPending = useRef(false);
+	const [failNext, setFailNext] = useState(false);
 
 	function edit(title: string) {
 		const next = { title, revision: latest.current.revision + 1 };
@@ -35,6 +37,8 @@ function Editor() {
 
 	// Adapted from Hamsaz admin.tsx: bind checks to the draft snapshot and publish its reviewed revision.
 	async function inspect() {
+		if (requestPending.current) return;
+		requestPending.current = true;
 		setPhase('checking');
 		const snapshot = latest.current;
 		try {
@@ -46,30 +50,36 @@ function Editor() {
 			setReport(response);
 			setMessage(response.errors.join(' ') || 'This draft passed review.');
 		} finally {
+			requestPending.current = false;
 			setPhase('idle');
 		}
 	}
 
 	async function publish() {
-		if (publishing.current || !report || report.errors.length) return;
-		const snapshot = latest.current;
-		publishing.current = true;
+		if (requestPending.current || !report || report.errors.length || report.reviewed.revision !== latest.current.revision) return;
+		const snapshot = report.reviewed;
+		requestPending.current = true;
 		setPhase('publishing');
+		setFailNext(false);
 		try {
-			const response = await mockApi.publish(snapshot);
+			const response = await mockApi.publish(snapshot, failNext);
 			setPublished(response);
 			if (latest.current.revision === snapshot.revision) {
 				setMessage('Reviewed revision published.');
 			} else {
 				setMessage('Reviewed revision published. Your newer edits are still in the draft.');
 			}
+		} catch {
+			setMessage(latest.current.revision === snapshot.revision
+				? 'Publication failed. You can retry the reviewed revision.'
+				: 'Publication failed. Your newer draft is intact. Review it before publishing.');
 		} finally {
-			publishing.current = false;
+			requestPending.current = false;
 			setPhase('idle');
 		}
 	}
 
-	const canPublish = phase === 'idle' && report !== null && report.errors.length === 0;
+	const canPublish = phase === 'idle' && report !== null && report.errors.length === 0 && report.reviewed.revision === draft.revision;
 	const draftState = phase === 'checking' ? 'Reviewing' : canPublish ? 'Reviewed' : report?.errors.length ? 'Needs changes' : 'Unreviewed';
 
 	return <main>
@@ -85,6 +95,7 @@ function Editor() {
 				</div>
 				<label htmlFor="kit-title">Kit name</label>
 				<input id="kit-title" value={draft.title} onChange={event => edit(event.target.value)} />
+				<label><input type="checkbox" checked={failNext} disabled={phase !== 'idle'} onChange={event => setFailNext(event.target.checked)} /> Simulate the next publication failing</label>
 				<div className="actions">
 					<button data-primary={!canPublish} disabled={phase !== 'idle'} onClick={() => void inspect()}>Review draft</button>
 					<button data-primary={canPublish} disabled={!canPublish} onClick={() => void publish()}>Publish reviewed draft</button>
