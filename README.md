@@ -21,5 +21,8 @@ To run the browser regression suite locally, install Chromium with `npx playwrig
 1. Install dependencies with `npm ci`, then run `npm run dev` and open the local URL it prints.
 2. Edit a kit name while review is pending. The outdated review must not enable publishing.
 3. Review the updated draft, start publishing, and make another edit. The reviewed revision appears in **Published version**, with the newest edit still shown under **Current draft**.
+4. Select **Simulate the next publication failing** before publishing. The same reviewed revision can be retried if the draft is unchanged. Editing during the failed attempt keeps the newer draft and requires a new review.
+
+The Pages demo uses an in-memory API. Reloading resets the sample draft and published state.
 
 `npm run build` typechecks the code and creates the static demo. [The editor](src/editor.tsx) documents the original snapshot and reviewed-revision logic and the test adapter. [License](LICENSE).

@@ -24,3 +24,21 @@ test('publishing keeps edits made after the reviewed revision', async ({ page })
 	await expect(title).toHaveValue('Camera kit V3');
 	await expect(page.getByRole('status')).toContainText('Your newer edits are still in the draft.');
 });
+
+test('a failed publication can be retried once for the same reviewed revision', async ({ page }) => {
+	await page.clock.install();
+	await page.goto('/');
+	await page.getByLabel('Kit name').fill('Reviewed kit');
+	await page.getByRole('button', { name: 'Review draft' }).click();
+	await page.clock.runFor(1_000);
+	await page.getByLabel('Simulate the next publication failing').check();
+	const publish = page.getByRole('button', { name: 'Publish reviewed draft' });
+	await publish.dblclick();
+	await expect(publish).toBeDisabled();
+	await page.clock.runFor(1_000);
+	await expect(page.getByRole('region', { name: 'Published version' })).toContainText('Awaiting publication.');
+	await expect(page.getByRole('status')).toContainText('You can retry the reviewed revision.');
+	await publish.click();
+	await page.clock.runFor(1_000);
+	await expect(page.getByRole('region', { name: 'Published version' })).toContainText('Reviewed kit');
+});
