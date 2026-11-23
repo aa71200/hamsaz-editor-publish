@@ -1,6 +1,6 @@
 # Hamsaz Draft Publishing
 
-A React and TypeScript portfolio sample adapted from the draft publication flow in CodexaWP’s **Hamsaz 0.1.0** configurator. The demo uses an in-memory API with deliberate delay to reproduce two timing cases.
+A review that finishes late should never approve a newer draft. This React and TypeScript sample adapts the publication flow from **Hamsaz 0.1.0**, using a delayed in-memory API to show how the editor preserves newer changes.
 
 ## Interface preview
 
@@ -11,6 +11,10 @@ A React and TypeScript portfolio sample adapted from the draft publication flow 
 </p>
 
 ## Run the demo
+
+[Open the live demo](https://aa71200.github.io/hamsaz-editor-publish/)
+
+To run the browser regression suite locally, install Chromium with `npx playwright install chromium`, then run `npm run test:browser` after `npm ci`.
 
 1. Install dependencies with `npm ci`, then run `npm run dev` and open the local URL it prints.
 2. Edit a kit name while review is pending. The outdated review must not enable publishing.
